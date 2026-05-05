@@ -1,0 +1,22 @@
+{
+  "name": "pipeline-qualite-eau",
+  "version": "1.0.0",
+  "description": "Résultats-du-contrôle-sanitaire-de-l'eau-distribuée-commune-par-commune",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.6",
+    "semantic-release": "^24.2.9"
+  }
+}

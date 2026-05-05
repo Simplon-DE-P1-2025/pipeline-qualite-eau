@@ -36,3 +36,33 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v --co -q || echo "Aucun test pour l'instant"
         continue-on-error: true
+        
+  # ─────────────────────────────────────────────
+  # Job CD : crée une release GitHub automatique
+  # après chaque merge sur main si le CI passe.
+  # Incrémente la version selon les commits
+  # (feat = minor, fix = patch, feat! = major)
+  # ─────────────────────────────────────────────
+  release:
+    runs-on: ubuntu-latest
+    # S'exécute uniquement sur main, après quality-check
+    if: github.ref == 'refs/heads/main'
+    needs: quality-check
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Semantic Release
+        run: npm install
+
+      - name: Run Semantic Release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
