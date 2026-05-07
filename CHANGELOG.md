@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.0.0...v1.1.0) (2026-05-07)
+
+
+### Features
+
+* **notebooks:** ajout notebooks ETL bronze silver gold ([23a3b9d](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/23a3b9d47a17f655fe153121a24d823897480156))
+
 # 1.0.0 (2026-05-05)
 
 
