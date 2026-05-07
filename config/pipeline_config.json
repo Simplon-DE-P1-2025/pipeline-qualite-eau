@@ -1,0 +1,38 @@
+{
+  "dataset": {
+    "id": "5cf8d9ed8b4c4110294c841d",
+    "slug": "resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune",
+    "api_base_url": "https://www.data.gouv.fr/api/1/datasets/",
+    "annees": [2023, 2024, 2025],
+    "pattern_fichier": "dis-{annee}.zip"
+  },
+  "fichiers": {
+    "result" : "DIS_RESULT_{annee}.txt",
+    "plv"    : "DIS_PLV_{annee}.txt",
+    "udi_com": "DIS_COM_UDI_{annee}.txt"
+  },
+  "catalog": {
+    "name": "workspace",
+    "schemas": {
+      "bronze": "bronze",
+      "silver": "silver",
+      "gold": "gold"
+    }
+  },
+    "tables": {
+    "bronze_result"   : "workspace.bronze.resultats_bruts",
+    "bronze_plv"      : "workspace.bronze.prelevements_bruts",
+    "bronze_udi"      : "workspace.bronze.udi_communes",
+    "silver"          : "workspace.silver.qualite_eau",
+    "gold_commune"    : "workspace.gold.conformite_commune",
+    "gold_evolution"  : "workspace.gold.evolution_parametres",
+    "gold_carte"      : "workspace.gold.carte_regions",
+    "gold_top"        : "workspace.gold.top_communes",
+    "gold_nonconf"    : "workspace.gold.nonconformites"
+  },
+    "pipeline": {
+    "partition_bronze": "annee",
+    "partition_silver": ["annee", "code_departement"],
+    "separateur_csv": ","
+  }
+}
