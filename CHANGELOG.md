@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.1.0...v1.2.0) (2026-05-07)
+
+
+### Features
+
+* **validation:** ajout notebook Great Expectations validation Silver ([45fed3e](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/45fed3ed7208a3d9255214f5e932a13676ff1137))
+
 # [1.1.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.0.0...v1.1.0) (2026-05-07)
 
 
