@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.2.0...v1.2.1) (2026-05-09)
+
+
+### Bug Fixes
+
+* **silver:** suppression rechargement config en doublon ([0832444](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/0832444f6b36141fbc03fd084cfed669ad583422))
+* **silver:** suppression rechargement config en doublon ([5710091](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/57100911ab63fa017ea79968dcce8c2a4842cd25))
+
 # [1.2.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.1.0...v1.2.0) (2026-05-07)
 
 
