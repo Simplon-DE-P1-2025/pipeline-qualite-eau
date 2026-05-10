@@ -1,3 +1,17 @@
+# [1.3.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.2.1...v1.3.0) (2026-05-10)
+
+
+### Bug Fixes
+
+* **api:** correction ordre tri top_communes et chargement dotenv ([5212f51](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/5212f51f4f4cb8222925fcd3a40ea7d673e253a4))
+
+
+### Features
+
+* **api:** ajout fichiers configuration Render et variables environnement ([7daee33](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/7daee3314fb8bee48aec7202cde9603d8e1c7683))
+* **api:** structure initiale FastAPI et Streamlit ([387e0b2](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/387e0b2f8de73861bc4a21c3839e64f879e572f5))
+* **dashboard:** ajout dashboard Streamlit complet 3 profils 5 pages ([c3fcb04](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/c3fcb04d40313207001cb7a0f73fcd3b5c7af0b1))
+
 ## [1.2.1](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.2.0...v1.2.1) (2026-05-09)
 
 
