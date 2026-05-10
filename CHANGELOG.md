@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.0...v1.3.1) (2026-05-10)
+
+
+### Bug Fixes
+
+* **api:** suppression versions fixes requirements pour compatibilité Render Python 3.14 ([d9d1ae8](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/d9d1ae82d0c0057d667fa91e7c0294839e2f7952))
+
 # [1.3.0](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.2.1...v1.3.0) (2026-05-10)
 
 
