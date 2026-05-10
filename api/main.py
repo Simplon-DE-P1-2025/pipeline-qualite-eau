@@ -2,10 +2,14 @@
 # Point d'entrée FastAPI — Pipeline Qualité de l'Eau
 # Connexion au SQL Warehouse Databricks via databricks-sql-connector
 
+import os
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
 from fastapi import FastAPI, HTTPException, Query
 from databricks import sql
-import os
 from typing import Optional
+
 
 app = FastAPI(
     title="API Qualité de l'Eau",
@@ -112,7 +116,7 @@ def top_communes(
         query = f"""
             SELECT * FROM workspace.gold.top_communes
             {'WHERE code_departement = ?' if departement else ''}
-            ORDER BY rang
+            ORDER BY taux_conformite_pct DESC
             LIMIT {limite}
         """
         params = [departement] if departement else []
