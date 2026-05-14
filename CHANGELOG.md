@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.6...v1.3.7) (2026-05-14)
+
+
+### Bug Fixes
+
+* evolution courbes + carte choroplethe + nonconformites colonnes ([735f19c](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/735f19c5dec147b7765aee80d4e6e92bde8790ef))
+
 ## [1.3.6](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.5...v1.3.6) (2026-05-14)
 
 
