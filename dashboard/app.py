@@ -146,7 +146,6 @@ elif page == "📍 Par commune":
             ]
 
         if profil == "🏠 Citoyen":
-            # Affichage simplifié
             for _, row in df_commune.head(5).iterrows():
                 taux = row.get("taux_conformite_pct", 0)
                 statut = "✅ Eau conforme" if taux >= 95 else "⚠️ Vigilance recommandée"
@@ -177,7 +176,6 @@ elif page == "📍 Par commune":
             fig.update_layout(xaxis_tickangle=-45)
             st.plotly_chart(fig, use_container_width=True)
 
-        # Bouton export
         st.download_button(
             label="Télécharger les données (CSV)",
             data=df_commune.to_csv(index=False),
@@ -200,8 +198,11 @@ elif page == "📈 Évolution":
         df_evol = appel_api("evolution_parametres", {"limite": 1000})
 
     if not df_evol.empty:
+        # CORRECTION 1 : conversion en str pour éviter le TypeError sur sorted()
+        # et pour garantir la cohérence du filtre isin() plus bas
         if "code_parametre" in df_evol.columns:
-            parametres_dispo = sorted(df_evol["code_parametre"].dropna().astype(str).unique().tolist())
+            df_evol["code_parametre"] = df_evol["code_parametre"].dropna().astype(str)
+            parametres_dispo = sorted(df_evol["code_parametre"].unique().tolist())
 
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
@@ -220,11 +221,19 @@ elif page == "📈 Évolution":
                     default=parametres_dispo[:3] if len(parametres_dispo) >= 3 else parametres_dispo
                 )
 
+            # CORRECTION 2 : le filtre isin() fonctionne car code_parametre est déjà en str
             df_filtre = df_evol[df_evol["code_parametre"].isin(parametres_filtres)]
 
             if "annee" in df_filtre.columns and "mois" in df_filtre.columns:
                 df_filtre = df_filtre.copy()
-                df_filtre["periode"] = df_filtre["annee"].astype(str) + "-" + df_filtre["mois"].astype(str).str.zfill(2)
+                # CORRECTION 3 : construction de la colonne periode en str propre YYYY-MM
+                df_filtre["periode"] = (
+                    df_filtre["annee"].astype(str)
+                    + "-"
+                    + df_filtre["mois"].astype(str).str.zfill(2)
+                )
+                # Tri chronologique pour que la courbe s'affiche dans le bon ordre
+                df_filtre = df_filtre.sort_values("periode")
 
                 fig = px.line(
                     df_filtre,
@@ -232,13 +241,22 @@ elif page == "📈 Évolution":
                     y="taux_conformite_pct",
                     color="code_parametre",
                     title="Evolution du taux de conformité par paramètre",
-                    labels={"taux_conformite_pct": "Taux (%)", "periode": "Période", "code_parametre": "Paramètre"}
+                    labels={
+                        "taux_conformite_pct": "Taux (%)",
+                        "periode": "Période",
+                        "code_parametre": "Paramètre"
+                    },
+                    markers=True
                 )
                 fig.update_layout(xaxis_tickangle=-45)
                 st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("Colonnes 'annee' ou 'mois' absentes des données.")
 
             if profil == "💻 Data / Technique":
                 st.dataframe(df_filtre, use_container_width=True)
+    else:
+        st.info("Aucune donnée disponible.")
 
 # ============================================================
 # PAGE CARTE REGIONS
@@ -256,22 +274,8 @@ elif page == "🗺️ Carte régions":
         df_carte = appel_api("carte_regions")
 
     if not df_carte.empty and "code_departement" in df_carte.columns:
-        # Carte choroplèthe départements
-        fig = px.choropleth(
-            df_carte,
-            geojson="https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson",
-            locations="code_departement",
-            featureidkey="properties.code",
-            color="taux_conformite_pct",
-            color_continuous_scale=["red", "orange", "green"],
-            range_color=[80, 100],
-            title="Taux de conformité par département",
-            labels={"taux_conformite_pct": "Conformité (%)"},
-        )
-        fig.update_geos(fitbounds="locations", visible=False)
-        fig.update_layout(height=600, margin={"r":0,"t":30,"l":0,"b":0})
 
-        # Superposition bassins hydrographiques pour profil Citoyen
+        # Informations bassins hydrographiques — profil Citoyen uniquement
         if profil == "🏠 Citoyen":
             with st.expander("ℹ️ Comprendre les bassins hydrographiques"):
                 st.markdown("""
@@ -288,7 +292,27 @@ elif page == "🗺️ Carte régions":
                 à l'échelle de ces bassins pour garantir la qualité de l'eau potable.
                 """)
 
-        # Heatmap pour profil Data
+        # CORRECTION 4 : ajout du st.plotly_chart() manquant pour la choroplèthe
+        # Filtrage sur l'année sélectionnée pour n'afficher qu'une valeur par département
+        df_carte_annee = df_carte[df_carte["annee"] == annee] if "annee" in df_carte.columns else df_carte
+
+        fig = px.choropleth(
+            df_carte_annee,
+            geojson="https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson",
+            locations="code_departement",
+            featureidkey="properties.code",
+            color="taux_conformite_pct",
+            color_continuous_scale=["red", "orange", "green"],
+            range_color=[80, 100],
+            title=f"Taux de conformité par département ({annee})",
+            labels={"taux_conformite_pct": "Conformité (%)"},
+        )
+        fig.update_geos(fitbounds="locations", visible=False)
+        fig.update_layout(height=600, margin={"r": 0, "t": 30, "l": 0, "b": 0})
+        # Affichage effectif de la carte — ligne manquante dans la version précédente
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Heatmap supplémentaire pour profil Data / Technique
         if profil == "💻 Data / Technique" and "annee" in df_carte.columns:
             fig_heat = px.density_heatmap(
                 df_carte,
@@ -302,6 +326,9 @@ elif page == "🗺️ Carte régions":
 
         if profil != "🏠 Citoyen":
             st.dataframe(df_carte, use_container_width=True)
+
+    else:
+        st.warning("Données cartographiques indisponibles.")
 
 # ============================================================
 # PAGE TOP COMMUNES
@@ -369,20 +396,24 @@ elif page == "⚠️ Non-conformités":
         if profil == "🏠 Citoyen":
             st.markdown("### Substances détectées")
             for _, row in df_nonconf.iterrows():
-                st.warning(f"**{row.get('libelle_parametre', row.get('code_parametre', ''))}** — détecté dans {row.get('nb_communes', '')} commune(s)")
+                # CORRECTION 5 : nom de colonne adapté à ce que retourne l'API
+                nb_communes_val = row.get("nb_communes_concernees", row.get("nb_communes", "N/A"))
+                st.warning(f"**{row.get('libelle_parametre', row.get('code_parametre', ''))}** — détecté dans {nb_communes_val} commune(s)")
 
         elif profil == "🏛️ Institutionnel":
-            colonnes = ["code_parametre", "libelle_parametre", "nb_analyses", "nb_communes", "annee"]
+            # CORRECTION 6 : colonnes alignées sur le schéma réel retourné par l'API
+            colonnes = ["code_parametre", "libelle_parametre", "nb_analyses", "nb_non_conformes", "nb_communes_concernees", "annee"]
             colonnes_dispo = [c for c in colonnes if c in df_nonconf.columns]
             st.dataframe(df_nonconf[colonnes_dispo], use_container_width=True)
 
-            if "code_parametre" in df_nonconf.columns and "nb_analyses" in df_nonconf.columns:
+            if "code_parametre" in df_nonconf.columns and "nb_non_conformes" in df_nonconf.columns:
+                df_plot = df_nonconf[df_nonconf["code_parametre"].notna()]
                 fig = px.bar(
-                    df_nonconf,
+                    df_plot,
                     x="code_parametre",
-                    y="nb_analyses",
+                    y="nb_non_conformes",
                     title="Non-conformités par paramètre",
-                    labels={"nb_analyses": "Nb analyses", "code_parametre": "Paramètre"}
+                    labels={"nb_non_conformes": "Nb non conformes", "code_parametre": "Paramètre"}
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -402,4 +433,3 @@ elif page == "⚠️ Non-conformités":
             st.success("Aucune non-conformité détectée pour les filtres sélectionnés.")
         else:
             st.info("Aucune donnée disponible pour les filtres sélectionnés.")
-
