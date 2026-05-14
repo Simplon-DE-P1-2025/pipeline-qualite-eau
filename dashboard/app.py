@@ -201,7 +201,7 @@ elif page == "📈 Évolution":
 
     if not df_evol.empty:
         if "code_parametre" in df_evol.columns:
-            parametres_dispo = sorted(df_evol["code_parametre"].dropna().astype(str).unique().tolist()
+            parametres_dispo = sorted(df_evol["code_parametre"].dropna().astype(str).unique().tolist())
 
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
