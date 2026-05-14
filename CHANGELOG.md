@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.1...v1.3.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* **dashboard:** suppression versions fixes requirements pour compatibilité Render ([6eeb4f8](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/6eeb4f8ae4635d05d69a9bc2bfb3dff4173c6c6a))
+
 ## [1.3.1](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.0...v1.3.1) (2026-05-10)
 
 
