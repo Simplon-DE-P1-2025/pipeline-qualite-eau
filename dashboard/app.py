@@ -201,7 +201,7 @@ elif page == "📈 Évolution":
 
     if not df_evol.empty:
         if "code_parametre" in df_evol.columns:
-            parametres_dispo = sorted(df_evol["code_parametre"].unique().tolist())
+            parametres_dispo = sorted(df_evol["code_parametre"].dropna().astype(str).unique().tolist()
 
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
@@ -267,14 +267,9 @@ elif page == "🗺️ Carte régions":
             range_color=[80, 100],
             title="Taux de conformité par département",
             labels={"taux_conformite_pct": "Conformité (%)"},
-            hover_data=["nb_communes", "nb_analyses"] if all(c in df_carte.columns for c in ["nb_communes", "nb_analyses"]) else None
         )
-        fig.update_geos(
-            fitbounds="locations",
-            visible=False
-        )
-        fig.update_layout(height=600)
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_geos(fitbounds="locations", visible=False)
+        fig.update_layout(height=600, margin={"r":0,"t":30,"l":0,"b":0})
 
         # Superposition bassins hydrographiques pour profil Citoyen
         if profil == "🏠 Citoyen":
