@@ -201,8 +201,8 @@ elif page == "📈 Évolution":
         # CORRECTION 1 : conversion en str pour éviter le TypeError sur sorted()
         # et pour garantir la cohérence du filtre isin() plus bas
         if "code_parametre" in df_evol.columns:
-            df_evol["code_parametre"] = df_evol["code_parametre"].dropna().astype(str)
-            parametres_dispo = sorted(df_evol["code_parametre"].unique().tolist())
+            df_evol["code_parametre"] = df_evol["code_parametre"].fillna("").astype(str)
+            parametres_dispo = sorted([p for p in df_evol["code_parametre"].unique().tolist() if p != ""])
 
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
