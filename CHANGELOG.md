@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.3...v1.3.4) (2026-05-14)
+
+
+### Bug Fixes
+
+* **dashboard:** correction tri parametres evolution et chargement carte choroplèthe ([ceddc1e](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/ceddc1e8ecbfa0540382811e7c861f1a77645fdb))
+
 ## [1.3.3](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.2...v1.3.3) (2026-05-14)
 
 
