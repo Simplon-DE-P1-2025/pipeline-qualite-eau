@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.7...v1.3.8) (2026-05-14)
+
+
+### Bug Fixes
+
+* **dashboard:** correction NaN dans sorted code_parametre evolution ([e46c0c8](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/e46c0c8b2473c1cb9bde1ce9f5e0ea66f81d69ca))
+
 ## [1.3.7](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.6...v1.3.7) (2026-05-14)
 
 
