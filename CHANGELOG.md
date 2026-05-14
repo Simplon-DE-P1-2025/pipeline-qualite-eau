@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.5...v1.3.6) (2026-05-14)
+
+
+### Bug Fixes
+
+* correction syntaxe parenthese ligne 204 evolution ([382ac67](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/382ac6729b08432edfee277f9f999fee8beb8af7))
+
 ## [1.3.5](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.4...v1.3.5) (2026-05-14)
 
 
