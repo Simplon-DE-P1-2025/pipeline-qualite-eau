@@ -201,8 +201,8 @@ elif page == "📈 Évolution":
         # CORRECTION 1 : conversion en str pour éviter le TypeError sur sorted()
         # et pour garantir la cohérence du filtre isin() plus bas
         if "code_parametre" in df_evol.columns:
-            df_evol["code_parametre"] = df_evol["code_parametre"] = df_evol["code_parametre"].fillna("").astype(str)
-            parametres_dispo = sorted([p for p in df_evol["code_parametre"].unique().tolist() if p != ""])
+            df_evol["code_parametre"] = df_evol["code_parametre"].dropna().astype(str)
+            parametres_dispo = sorted(df_evol["code_parametre"].unique().tolist())
 
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
@@ -234,6 +234,8 @@ elif page == "📈 Évolution":
                 )
                 # Tri chronologique pour que la courbe s'affiche dans le bon ordre
                 df_filtre = df_filtre.sort_values("periode")
+                # Forcer periode en string pour éviter que Plotly interprète en datetime
+                periodes_ordre = sorted(df_filtre["periode"].unique().tolist())
 
                 fig = px.line(
                     df_filtre,
@@ -246,8 +248,10 @@ elif page == "📈 Évolution":
                         "periode": "Période",
                         "code_parametre": "Paramètre"
                     },
-                    markers=True
+                    markers=True,
+                    category_orders={"periode": periodes_ordre}
                 )
+                fig.update_xaxes(type="category")
                 fig.update_layout(xaxis_tickangle=-45)
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -292,7 +296,10 @@ elif page == "🗺️ Carte régions":
                 à l'échelle de ces bassins pour garantir la qualité de l'eau potable.
                 """)
 
-        # CORRECTION 4 : ajout du st.plotly_chart() manquant pour la choroplèthe
+        # CORRECTION 4 : normalisation code_departement 3 chiffres → 2 chiffres
+        # L'API retourne '001', '002' mais le GeoJSON gregoiredavid attend '01', '02'
+        df_carte["code_departement"] = df_carte["code_departement"].astype(str).str.lstrip("0").str.zfill(2)
+
         # Filtrage sur l'année sélectionnée pour n'afficher qu'une valeur par département
         df_carte_annee = df_carte[df_carte["annee"] == annee] if "annee" in df_carte.columns else df_carte
 
@@ -309,7 +316,6 @@ elif page == "🗺️ Carte régions":
         )
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(height=600, margin={"r": 0, "t": 30, "l": 0, "b": 0})
-        # Affichage effectif de la carte — ligne manquante dans la version précédente
         st.plotly_chart(fig, use_container_width=True)
 
         # Heatmap supplémentaire pour profil Data / Technique
@@ -342,10 +348,13 @@ elif page == "🏆 Top communes":
         st.title("🏆 gold_top_communes — RANK() par département")
 
     with st.spinner("Chargement du classement..."):
-        params = {"limite": 10}
+        params_top = {"limite": 10, "ordre": "desc"}
+        params_flop = {"limite": 10, "ordre": "asc"}
         if departement:
-            params["departement"] = departement
-        df_top = appel_api("top_communes", params)
+            params_top["departement"] = departement
+            params_flop["departement"] = departement
+        df_top = appel_api("top_communes", params_top)
+        df_flop = appel_api("top_communes", params_flop)
 
     if not df_top.empty:
         if profil == "🏠 Citoyen":
@@ -357,21 +366,43 @@ elif page == "🏆 Top communes":
                 medaille = "🥇" if rang == 1 else "🥈" if rang == 2 else "🥉" if rang == 3 else f"#{rang}"
                 st.markdown(f"**{medaille} {nom}** — {taux:.1f}% de conformité")
 
-        fig = px.bar(
+        # Graphique Top
+        fig_top = px.bar(
             df_top,
             x="taux_conformite_pct",
             y="nom_commune",
             orientation="h",
             color="taux_conformite_pct",
             color_continuous_scale=["orange", "green"],
-            title=f"Top {len(df_top)} communes — taux de conformité",
+            title=f"Top {len(df_top)} communes — meilleur taux de conformité",
             labels={"taux_conformite_pct": "Taux (%)", "nom_commune": "Commune"}
         )
-        fig.update_layout(yaxis={"categoryorder": "total ascending"})
-        st.plotly_chart(fig, use_container_width=True)
+        fig_top.update_layout(yaxis={"categoryorder": "total ascending"})
+        st.plotly_chart(fig_top, use_container_width=True)
+
+        # Graphique Flop — communes avec le taux le plus bas
+        if not df_flop.empty:
+            fig_flop = px.bar(
+                df_flop,
+                x="taux_conformite_pct",
+                y="nom_commune",
+                orientation="h",
+                color="taux_conformite_pct",
+                color_continuous_scale=["red", "orange"],
+                title=f"Flop {len(df_flop)} communes — taux de conformité les plus bas",
+                labels={"taux_conformite_pct": "Taux (%)", "nom_commune": "Commune"}
+            )
+            fig_flop.update_layout(yaxis={"categoryorder": "total ascending"})
+            st.plotly_chart(fig_flop, use_container_width=True)
 
         if profil == "💻 Data / Technique":
-            st.dataframe(df_top, use_container_width=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Top 10**")
+                st.dataframe(df_top, use_container_width=True)
+            with col2:
+                st.markdown("**Flop 10**")
+                st.dataframe(df_flop, use_container_width=True)
 
 # ============================================================
 # PAGE NON-CONFORMITES
