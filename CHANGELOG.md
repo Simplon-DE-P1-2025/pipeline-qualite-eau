@@ -1,3 +1,10 @@
+## [1.3.10](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.9...v1.3.10) (2026-05-14)
+
+
+### Bug Fixes
+
+* **dashboard:** correction NaN evolution fillna vide au lieu de dropna ([8c00f96](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/8c00f960d6b6b9f7bc175d99f9ccb1fc90172d3f))
+
 ## [1.3.9](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.8...v1.3.9) (2026-05-14)
 
 
