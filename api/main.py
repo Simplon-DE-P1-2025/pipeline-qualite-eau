@@ -105,18 +105,22 @@ def carte_regions():
         raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoint 4 — Top communes
+# CORRECTION : ajout du parametre ordre (desc=top, asc=flop) pour afficher les deux classements
 @app.get("/top_communes")
 def top_communes(
     departement: Optional[str] = Query(None, description="Code département ex: 69"),
-    limite: int = Query(10, description="Nombre de résultats")
+    limite: int = Query(10, description="Nombre de résultats"),
+    ordre: str = Query("desc", description="Ordre de tri : desc (top) ou asc (flop)")
 ):
     try:
         conn = get_connection()
         cursor = conn.cursor()
+        # Validation de l'ordre pour éviter une injection SQL
+        ordre_sql = "DESC" if ordre.lower() != "asc" else "ASC"
         query = f"""
             SELECT * FROM workspace.gold.top_communes
             {'WHERE code_departement = ?' if departement else ''}
-            ORDER BY taux_conformite_pct DESC
+            ORDER BY taux_conformite_pct {ordre_sql}
             LIMIT {limite}
         """
         params = [departement] if departement else []
