@@ -1,3 +1,10 @@
+## [1.3.9](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.8...v1.3.9) (2026-05-14)
+
+
+### Bug Fixes
+
+* **dashboard:** normalisation code_departement carte + axe periode category + flop communes ([64cc81a](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/64cc81adf1ae8f118158a23b1089792a1bcda3b9))
+
 ## [1.3.8](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.7...v1.3.8) (2026-05-14)
 
 
