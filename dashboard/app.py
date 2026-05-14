@@ -396,7 +396,7 @@ elif page == "⚠️ Non-conformités":
 
             if "code_parametre" in df_nonconf.columns and "nb_analyses" in df_nonconf.columns:
                 fig = px.treemap(
-                    df_nonconf,
+                    df_nonconf[df_nonconf["code_parametre"].notna()],
                     path=["code_parametre"],
                     values="nb_analyses",
                     title="Treemap non-conformités par paramètre"
