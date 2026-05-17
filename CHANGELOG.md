@@ -1,3 +1,10 @@
+## [1.3.11](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.10...v1.3.11) (2026-05-17)
+
+
+### Bug Fixes
+
+* **dashboard:** evolution appel API cible par parametre au lieu de limite globale ([38a7a55](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/commit/38a7a556f46544ec4d3e07f122d8999a49a80508))
+
 ## [1.3.10](https://github.com/Simplon-DE-P1-2025/pipeline-qualite-eau/compare/v1.3.9...v1.3.10) (2026-05-14)
 
 
