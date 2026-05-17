@@ -186,6 +186,16 @@ elif page == "📍 Par commune":
 # ============================================================
 # PAGE EVOLUTION
 # ============================================================
+# Architecture en deux temps :
+# 1. Appel initial léger (limite=500) pour construire la liste des paramètres
+#    disponibles dans le selectbox — on ne charge pas toute la table.
+# 2. Une fois le paramètre sélectionné par l'utilisateur, appel ciblé
+#    (parametre=<code>, limite=500) pour récupérer toutes les mesures
+#    de ce paramètre sur la période 2023-2025.
+# Ce pattern évite de charger 42 707 lignes en mémoire pour n'en afficher
+# qu'une fraction, et garantit que chaque paramètre dispose de sa série
+# temporelle complète pour le tracé Plotly.
+# ============================================================
 elif page == "📈 Évolution":
     if profil == "🏠 Citoyen":
         st.title("📈 L'eau s'améliore-t-elle dans le temps ?")
@@ -194,16 +204,21 @@ elif page == "📈 Évolution":
     else:
         st.title("📈 gold_evolution_parametres — séries temporelles")
 
-    with st.spinner("Chargement des données..."):
-        df_evol = appel_api("evolution_parametres", {"limite": 1000})
+    # Etape 1 : chargement de la liste des paramètres disponibles (petit volume)
+    with st.spinner("Chargement de la liste des paramètres..."):
+        df_liste = appel_api("evolution_parametres", {"limite": 500})
 
-    if not df_evol.empty:
-        # CORRECTION 1 : conversion en str pour éviter le TypeError sur sorted()
-        # et pour garantir la cohérence du filtre isin() plus bas
-        if "code_parametre" in df_evol.columns:
-            df_evol["code_parametre"] = df_evol["code_parametre"].fillna("").astype(str)
-            parametres_dispo = sorted([p for p in df_evol["code_parametre"].unique().tolist() if p != ""])
+    if not df_liste.empty and "code_parametre" in df_liste.columns:
+        # Conversion en str et suppression des valeurs vides
+        df_liste["code_parametre"] = df_liste["code_parametre"].fillna("").astype(str)
+        parametres_dispo = sorted([
+            p for p in df_liste["code_parametre"].unique().tolist() if p != ""
+        ])
 
+        if not parametres_dispo:
+            st.warning("Aucun paramètre disponible.")
+        else:
+            # Sélection du ou des paramètres selon le profil
             if profil == "🏠 Citoyen":
                 parametre_selectionne = st.selectbox(
                     "Choisir un paramètre",
@@ -221,44 +236,58 @@ elif page == "📈 Évolution":
                     default=parametres_dispo[:3] if len(parametres_dispo) >= 3 else parametres_dispo
                 )
 
-            # CORRECTION 2 : le filtre isin() fonctionne car code_parametre est déjà en str
-            df_filtre = df_evol[df_evol["code_parametre"].isin(parametres_filtres)]
+            if parametres_filtres:
+                # Etape 2 : chargement ciblé des données pour chaque paramètre sélectionné
+                # L'API accepte un filtre parametre= pour ne retourner que les lignes utiles
+                frames = []
+                with st.spinner("Chargement des séries temporelles..."):
+                    for p in parametres_filtres:
+                        df_p = appel_api("evolution_parametres", {
+                            "parametre": p,
+                            "limite": 500
+                        })
+                        if not df_p.empty:
+                            frames.append(df_p)
 
-            if "annee" in df_filtre.columns and "mois" in df_filtre.columns:
-                df_filtre = df_filtre.copy()
-                # CORRECTION 3 : construction de la colonne periode en str propre YYYY-MM
-                df_filtre["periode"] = (
-                    df_filtre["annee"].astype(str)
-                    + "-"
-                    + df_filtre["mois"].astype(str).str.zfill(2)
-                )
-                # Tri chronologique pour que la courbe s'affiche dans le bon ordre
-                df_filtre = df_filtre.sort_values("periode")
-                # Forcer periode en string pour éviter que Plotly interprète en datetime
-                periodes_ordre = sorted(df_filtre["periode"].unique().tolist())
+                if frames:
+                    df_filtre = pd.concat(frames, ignore_index=True)
+                    df_filtre["code_parametre"] = df_filtre["code_parametre"].fillna("").astype(str)
 
-                fig = px.line(
-                    df_filtre,
-                    x="periode",
-                    y="taux_conformite_pct",
-                    color="code_parametre",
-                    title="Evolution du taux de conformité par paramètre",
-                    labels={
-                        "taux_conformite_pct": "Taux (%)",
-                        "periode": "Période",
-                        "code_parametre": "Paramètre"
-                    },
-                    markers=True,
-                    category_orders={"periode": periodes_ordre}
-                )
-                fig.update_xaxes(type="category")
-                fig.update_layout(xaxis_tickangle=-45)
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.warning("Colonnes 'annee' ou 'mois' absentes des données.")
+                    if "annee" in df_filtre.columns and "mois" in df_filtre.columns:
+                        df_filtre = df_filtre.copy()
+                        # Construction de la colonne periode en str propre YYYY-MM
+                        df_filtre["periode"] = (
+                            df_filtre["annee"].astype(str)
+                            + "-"
+                            + df_filtre["mois"].astype(str).str.zfill(2)
+                        )
+                        df_filtre = df_filtre.sort_values("periode")
+                        periodes_ordre = sorted(df_filtre["periode"].unique().tolist())
 
-            if profil == "💻 Data / Technique":
-                st.dataframe(df_filtre, use_container_width=True)
+                        fig = px.line(
+                            df_filtre,
+                            x="periode",
+                            y="taux_conformite_pct",
+                            color="code_parametre",
+                            title="Evolution du taux de conformité par paramètre",
+                            labels={
+                                "taux_conformite_pct": "Taux (%)",
+                                "periode": "Période",
+                                "code_parametre": "Paramètre"
+                            },
+                            markers=True,
+                            category_orders={"periode": periodes_ordre}
+                        )
+                        fig.update_xaxes(type="category")
+                        fig.update_layout(xaxis_tickangle=-45)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.warning("Colonnes 'annee' ou 'mois' absentes des données.")
+
+                    if profil == "💻 Data / Technique":
+                        st.dataframe(df_filtre, use_container_width=True)
+                else:
+                    st.info("Aucune donnée pour les paramètres sélectionnés.")
     else:
         st.info("Aucune donnée disponible.")
 
